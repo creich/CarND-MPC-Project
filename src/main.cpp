@@ -126,8 +126,20 @@ int main() {
           // epsi = 0 - atan( coeffs[1] +         0         +          0               )
           double epsi = -atan(coeffs[1]);
 
+          double steer_value = j[1]["steering_angle"];
+          double throttle_value = j[1]["throttle"];
+
           Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;
+          //state << 0, 0, 0, v, cte, epsi;
+          // Predict 0.1 second ahead to compensate latency
+          double latency = 0.1;
+          const double Lf = 2.67;
+          state[0] = v * cos(-steer_value) * latency;
+          state[1] = v * sin(-steer_value) * latency;
+          state[2] = (-v * steer_value / Lf * latency);
+          state[3] = v + throttle_value * latency;
+          state[4] = cte + v * sin(epsi) * latency;
+          state[5] = epsi - v * steer_value / Lf * latency;
 
           /*
           * Calculate steering angle and throttle using MPC.
@@ -141,8 +153,8 @@ int main() {
           double Lf = 2.67;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          double steer_value = vars[0] / (deg2rad(25)*Lf);
-          double throttle_value = vars[1];
+          steer_value = vars[0] / (deg2rad(25)*Lf);
+          throttle_value = vars[1];
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
