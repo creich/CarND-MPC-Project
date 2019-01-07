@@ -150,7 +150,6 @@ int main() {
 
           std::vector<double> vars = mpc.Solve(state, coeffs);
 
-          double Lf = 2.67;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           steer_value = vars[0] / (deg2rad(25)*Lf);
