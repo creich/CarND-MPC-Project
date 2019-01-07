@@ -37,3 +37,24 @@ work on my local machine
     useful at all. e.g. lets say we calulate that many points N that we could theoretically point 1km ahead. the chances that
     while driving in that direction some changes to the path are necessary are very high
 
+## polynomial fitting and waypoint preprocessing
+
+by transforming the waypoints to the vehicle's coordination system, the process to fit a polynomial to the waypoints simplifys a lot, since the vehicle's position coordinates are now at the origin point (0, 0) and the orientation angle psi is also 0.
+that leads to simple equations: `cte[t] = a0` and `epsi[t] = arctan(a1)`
+
+after that a third order polynomial is fitted to those waypoints. as stated in the lessons, a third order polynomial will probably fit most real world trajectories.
+
+## dealing with latency
+
+to compensate latency i tried to Predict 0.1 seconds ahead. the code for that can be found in `main.cpp` lines `134 - 142`
+
+```C
+double latency = 0.1;
+const double Lf = 2.67;
+state[0] = v * cos(-steer_value) * latency;
+state[1] = v * sin(-steer_value) * latency;
+state[2] = (-v * steer_value / Lf * latency);
+state[3] = v + throttle_value * latency;
+state[4] = cte + v * sin(epsi) * latency;
+state[5] = epsi - v * steer_value / Lf * latency;
+```
